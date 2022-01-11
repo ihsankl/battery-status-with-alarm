@@ -1,112 +1,96 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
 import React from 'react';
-import type {Node} from 'react';
 import {
+  Button,
   SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
+  TextInput,
   View,
 } from 'react-native';
+import {useBatteryLevel} from 'react-native-device-info';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+import BackgroundTimer from 'react-native-background-timer';
+import Sound from 'react-native-sound';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const App = () => {
+  const [batteryLimit, setBatteryLimit] = React.useState(30);
+  const batteryLevel = useBatteryLevel(); // 0.759999
 
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
+  React.useEffect(() => {
+    // playSound();
+    return () => {};
+  }, []);
+
+  const playSound = () => {
+    Sound.setCategory('Playback');
+    try {
+      const sound = new Sound(
+        'security-breach-alarm.mp3',
+        Sound.MAIN_BUNDLE,
+        error => {
+          if (error) {
+            console.log('failed to load the sound', error);
+            return;
+          }
+          sound.play(() => sound.release());
+        },
+      );
+      sound.play();
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  BackgroundTimer.setInterval(() => {
+    if (batteryLevel !== null && batteryLevel === 0.4) {
+      console.log(batteryLevel);
+    }
+  }, 3000);
+
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
+    <View style={styles.container}>
+      <Text style={styles.h1}>Set alarm for battery level: </Text>
+      <SafeAreaView>
+        <TextInput
+          style={styles.input}
+          onChangeText={setBatteryLimit}
+          value={batteryLimit.toString()}
+          placeholder="Enter battery level"
+          keyboardType="numeric"
+          onSubmitEditing={() => {
+            console.log(batteryLimit);
+          }}
+        />
+        <Button title="Test" onPress={playSound} />
+      </SafeAreaView>
+      <Text style={styles.h1}>
+        Your current battery level: {`${Math.floor(batteryLevel * 100)}%`}
       </Text>
     </View>
   );
 };
 
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
+export default App;
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  h1: {
+    fontSize: 30,
+    textAlign: 'center',
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+  input: {
+    height: 40,
+    margin: 12,
+    borderWidth: 1,
+    padding: 10,
+    textAlign: 'center',
+    width: 60,
+    borderRadius: 4,
   },
 });
-
-export default App;

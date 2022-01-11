@@ -12,6 +12,12 @@ target 'BatteryCheck' do
     :hermes_enabled => false
   )
 
+  pod 'RNDeviceInfo', :path => '../node_modules/react-native-device-info'
+
+  pod 'react-native-background-timer', :path => '../node_modules/react-native-background-timer'
+
+  pod 'RNSound', :path => '../node_modules/react-native-sound'
+
   target 'BatteryCheckTests' do
     inherit! :complete
     # Pods for testing
